@@ -12,7 +12,7 @@ rcvar="ha_passive_enforcer_enable"
 
 LOG_FILE="/var/log/ha_enforcer.log"
 LOCK_FILE="/tmp/ha_enforcer.lock"
-HA_CONF="/usr/local/etc/ha_failover.conf"
+HA_CONF="/usr/local/share/ha_failover/conf/ha_failover.conf"
 MAX_LOG_SIZE=10485760
 IS_DRY_RUN=0
 
