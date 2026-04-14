@@ -9,10 +9,10 @@
  */
 declare(strict_types=1);
 
-require_once 'config.inc';
-require_once 'interfaces.inc';
-require_once 'util.inc';
-require_once 'system.inc';
+require_once '/usr/local/etc/inc/config.inc';
+require_once '/usr/local/etc/inc/interfaces.inc';
+require_once '/usr/local/etc/inc/util.inc';
+require_once '/usr/local/etc/inc/system.inc';
 
 use OPNsense\Core\Backend;
 use OPNsense\Core\Config;
@@ -126,7 +126,7 @@ final class FailoverManager
     private const LOCK_FILE = '/tmp/carp_failover.lock';
     private const STATE_FILE = '/tmp/carp_failover.state';
     private const FAILURE_STATE_FILE = '/tmp/carp_failover.failures';
-    private const CONFIG_FILE = '/usr/local/etc/ha_failover.conf';
+    private const CONFIG_FILE = '/usr/local/share/ha_failover/conf/ha_failover.conf';
     private const LOG_IDENT = 'ha_failover';
     private const MAX_CONSECUTIVE_FAILURES = 3;
     private const FAILURE_COOLDOWN = 900;

@@ -65,7 +65,7 @@ function set_and_verify_route($gateway_ip, $if_friendly, $settle_delay, $ifdetai
 }
 
 try {
-    $ha_conf_json = @file_get_contents('/usr/local/etc/ha_failover.conf');
+    $ha_conf_json = @file_get_contents('/usr/local/share/ha_failover/conf/ha_failover.conf');
     if ($ha_conf_json === false) {
         throw new \Exception("Could not read ha_failover.conf");
     }
