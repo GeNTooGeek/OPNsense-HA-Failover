@@ -12,7 +12,7 @@
  */
 
 // We only need the DTO and custom exceptions from the main script.
-require_once '/usr/local/share/ha_failover/bin/10-failover.php';
+require_once __DIR__ . '/../inc/failover.inc';
 
 echo "OPNsense HA Failover Configuration Validator\n";
 
