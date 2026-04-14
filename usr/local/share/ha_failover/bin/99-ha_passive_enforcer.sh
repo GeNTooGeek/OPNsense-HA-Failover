@@ -75,8 +75,8 @@ ha_passive_enforcer_start()
 
     # --- Pre-flight Configuration Validation ---
     log "Validating HA configuration file schema and values..."
-    if ! /usr/local/etc/validate_ha_config.php >/dev/null 2>&1; then
-        log "CRITICAL: HA configuration file is invalid. Please run /usr/local/etc/validate_ha_config.php for details. Aborting."
+    if ! /usr/local/share/ha_failover/bin/validate_ha_config.php >/dev/null 2>&1; then
+        log "CRITICAL: HA configuration file is invalid. Please run /usr/local/share/ha_failover/bin/validate_ha_config.php for details. Aborting."
         exit 1
     fi
     log "HA configuration file is valid."
@@ -110,7 +110,7 @@ ha_passive_enforcer_start()
     log "Setting default routes via dedicated script..."
     if [ $IS_DRY_RUN -eq 1 ]; then
         log "DRY RUN: Would execute /usr/local/etc/rc.syshook.d/98-ha_set_routes.php"
-    elif /usr/local/etc/rc.syshook.d/98-ha_set_routes.php; then
+    elif /usr/local/share/ha_failover/bin/98-ha_set_routes.php; then
         log "Default routes configured successfully."
     else
         log "ERROR: Failed to configure default routes. Check system logs for details."

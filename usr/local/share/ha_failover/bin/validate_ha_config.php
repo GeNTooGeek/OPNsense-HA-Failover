@@ -8,15 +8,15 @@
  * without taking any actions. It should be run before deploying a new or
  * modified configuration to prevent runtime errors.
  *
- * Usage: /usr/local/etc/validate_ha_config.php
+ * Usage: /usr/local/share/ha_failover/bin/validate_ha_config.php
  */
 
 // We only need the DTO and custom exceptions from the main script.
-require_once '/usr/local/etc/rc.syshook.d/carp/10-failover.php';
+require_once '/usr/local/share/ha_failover/bin/10-failover.php';
 
 echo "OPNsense HA Failover Configuration Validator\n";
 
-$config_path = '/usr/local/etc/ha_failover.conf';
+$config_path = '/usr/local/share/ha_failover/conf/ha_failover.conf';
 
 if (!file_exists($config_path) || !is_readable($config_path)) {
     echo "ERROR: Configuration file not found or not readable at: {$config_path}\n";
