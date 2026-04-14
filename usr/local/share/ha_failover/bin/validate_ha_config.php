@@ -8,7 +8,7 @@
  * without taking any actions. It should be run before deploying a new or
  * modified configuration to prevent runtime errors.
  *
- * Usage: /usr/local/etc/validate_ha_config.php
+ * Usage: /usr/local/share/ha_failover/bin/validate_ha_config.php
  */
 
 // We only need the DTO and custom exceptions from the main script.
