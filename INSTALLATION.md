@@ -18,6 +18,11 @@ This guide provides step-by-step instructions for installing the OPNsense HA Fai
 
 ## Installation Steps
 
+## Temporary Installation Note
+
+These steps will need to change with the new file structure.  Current plan is to have an installation script that will do all of the work.
+Making temporary adjustments relative to new structure.
+
 ### 1. Create Directory Structure
 
 On **both** firewalls, create the necessary directories:
@@ -34,42 +39,26 @@ ls -la /usr/local/etc/rc.d/
 
 ### 2. Install Configuration Files
 
-Copy the following files to `/usr/local/etc/` on **both** firewalls:
+Copy files from repository to `/usr/local/share/ha_failover/` on **both** firewalls.
 
-#### Main Configuration File
+Ensure proper modes on each file:
 ```bash
-# Copy ha_failover.conf to /usr/local/etc/
-# Edit the file to match your environment (see Configuration section)
-chmod 600 /usr/local/etc/ha_failover.conf
+chmod 600 /usr/local/share/ha_failover/conf/ha_failover.conf
+chmod 755 /usr/local/share/ha_failover/bin/validate_ha_config.php
+chmod 755 /usr/local/share/ha_failover/bin/rc.syshook.d/carp/10-failover.php
+chmod 755 /usr/local/share/ha_failover/bin/rc.syshook.d/98-ha_set_routes.php
+chmod 755 /usr/local/share/ha_failover/bin/rc.d/99-ha_passive_enforcer.sh
 ```
 
-#### Validation Script
+Copy etc template to `/usr/local/etc/` on **both** firewalls:
+
 ```bash
-# Copy validate_ha_config.php to /usr/local/etc/
-chmod +x /usr/local/etc/validate_ha_config.php
+# This should copy all of the symlinks to the correct locations.
+# Current symlinks are relative, care should be taken to ensure they point at the proper locations.
+cp -Rv /usr/local/share/ha_failover/etc/ /usr/local/etc/
 ```
 
-### 3. Install Core Scripts
-
-#### Main Failover Script
-```bash
-# Copy 10-failover.php to /usr/local/etc/rc.syshook.d/carp/
-chmod +x /usr/local/etc/rc.syshook.d/carp/10-failover.php
-```
-
-#### Route Management Script
-```bash
-# Copy 98-ha_set_routes.php to /usr/local/etc/rc.syshook.d/
-chmod +x /usr/local/etc/rc.syshook.d/98-ha_set_routes.php
-```
-
-#### Boot Enforcer Script
-```bash
-# Copy 99-ha_passive_enforcer.sh to /usr/local/etc/rc.d/
-chmod +x /usr/local/etc/rc.d/99-ha_passive_enforcer.sh
-```
-
-### 4. Enable Boot Service
+### 3. Enable Boot Service
 
 On **both** firewalls:
 
@@ -79,7 +68,7 @@ echo 'ha_passive_enforcer_enable="YES"' >> /etc/rc.conf.local
 
 ### 5. Configuration Customization
 
-Edit `/usr/local/etc/ha_failover.conf` with your specific settings:
+Edit `/usr/local/share/ha_failover/conf/ha_failover.conf` with your specific settings:
 
 #### Required Changes
 - Replace `A.B.C.100` with your actual WAN IP
@@ -108,7 +97,7 @@ Remove these keys from the configuration:
 Validate your configuration:
 
 ```bash
-php /usr/local/etc/validate_ha_config.php
+php /usr/local/share/ha_failover/bin/validate_ha_config.php
 ```
 
 Expected output:
@@ -140,11 +129,11 @@ Ensure all files are identical on both firewalls:
 
 ```bash
 # Verify file checksums match between firewalls
-md5 /usr/local/etc/ha_failover.conf
-md5 /usr/local/etc/validate_ha_config.php
-md5 /usr/local/etc/rc.syshook.d/carp/10-failover.php
-md5 /usr/local/etc/rc.syshook.d/98-ha_set_routes.php
-md5 /usr/local/etc/rc.d/99-ha_passive_enforcer.sh
+md5 /usr/local/share/ha_failover/conf/ha_failover.conf
+md5 /usr/local/share/ha_failover/bin/validate_ha_config.php
+md5 /usr/local/share/ha_failover/bin/10-failover.php
+md5 /usr/local/share/ha_failover/bind/98-ha_set_routes.php
+md5 /usr/local/share/ha_failover/bin/99-ha_passive_enforcer.sh
 ```
 
 ## Post-Installation Testing
@@ -186,11 +175,11 @@ Remove primary firewall from maintenance mode:
 #### Permission Errors
 ```bash
 # Fix permissions
-chmod 600 /usr/local/etc/ha_failover.conf
-chmod +x /usr/local/etc/validate_ha_config.php
-chmod +x /usr/local/etc/rc.syshook.d/carp/10-failover.php
-chmod +x /usr/local/etc/rc.syshook.d/98-ha_set_routes.php
-chmod +x /usr/local/etc/rc.d/99-ha_passive_enforcer.sh
+chmod 600 /usr/local/share/ha_failover/conf/ha_failover.conf
+chmod 755 /usr/local/share/ha_failover/bin/validate_ha_config.php
+chmod 755 /usr/local/share/ha_failover/bin/rc.syshook.d/carp/10-failover.php
+chmod 755 /usr/local/share/ha_failover/bin/rc.syshook.d/98-ha_set_routes.php
+chmod 755 /usr/local/share/ha_failover/bin/rc.d/99-ha_passive_enforcer.sh
 ```
 
 #### Configuration Validation Fails
@@ -236,10 +225,10 @@ If installation fails and you need to rollback:
 2. **Remove Script Files**:
    ```bash
    rm -f /usr/local/etc/ha_failover.conf
-   rm -f /usr/local/etc/validate_ha_config.php
    rm -f /usr/local/etc/rc.syshook.d/carp/10-failover.php
    rm -f /usr/local/etc/rc.syshook.d/98-ha_set_routes.php
    rm -f /usr/local/etc/rc.d/99-ha_passive_enforcer.sh
+   rm -rf /usr/local/share/ha_failover/
    ```
 
 3. **Clean Up Temporary Files**:
