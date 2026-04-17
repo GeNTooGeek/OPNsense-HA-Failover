@@ -107,7 +107,7 @@ ha_passive_enforcer_start()
 
     log "Setting default routes via dedicated script..."
     if [ $IS_DRY_RUN -eq 1 ]; then
-        log "DRY RUN: Would execute /usr/local/etc/rc.syshook.d/98-ha_set_routes.php"
+        log "DRY RUN: Would execute $SCRIPT_DIR/98-ha_set_routes.php"
     elif $SCRIPT_DIR/98-ha_set_routes.php; then
         log "Default routes configured successfully."
     else
