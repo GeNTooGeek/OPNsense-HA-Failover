@@ -16,6 +16,8 @@ HA_CONF="/usr/local/share/ha_failover/conf/ha_failover.conf"
 MAX_LOG_SIZE=10485760
 IS_DRY_RUN=0
 
+SCRIPT_DIR=$(dirname $(readlink -f $0))
+
 log() {
     if [ -f "$LOG_FILE" ] && [ "$(stat -f%z "$LOG_FILE" 2>/dev/null || echo 0)" -gt $MAX_LOG_SIZE ]; then
         mv "$LOG_FILE" "${LOG_FILE}.old"
@@ -26,6 +28,7 @@ log() {
 
 cleanup() {
     rm -f "$LOCK_FILE"
+    exit $1
 }
 trap cleanup EXIT INT TERM
 
@@ -68,31 +71,26 @@ ha_passive_enforcer_start()
         log "========= Starting DRY RUN ========="
     fi
 
-    if ! [ -r "$HA_CONF" ] || ! jq empty "$HA_CONF" 2>/dev/null; then
-        log "ERROR: Config file $HA_CONF is missing, unreadable, or not valid JSON."
-        return 1
-    fi
-
     # --- Pre-flight Configuration Validation ---
     log "Validating HA configuration file schema and values..."
-    if ! /usr/local/share/ha_failover/bin/validate_ha_config.php >/dev/null 2>&1; then
-        log "CRITICAL: HA configuration file is invalid. Please run /usr/local/share/ha_failover/bin/validate_ha_config.php for details. Aborting."
-        exit 1
+    if ! $SCRIPT_DIR/validate_ha_config.php >/dev/null 2>&1; then
+        log "CRITICAL: HA configuration file is invalid. Please run $SCRIPT_DIR/validate_ha_config.php for details. Aborting."
+        cleanup 1
     fi
     log "HA configuration file is valid."
     # ----------------------------------------
 
     LOCK_TIMEOUT=$(jq -r '.timeouts.lock_wait_timeout // 60' "$HA_CONF" 2>/dev/null)
-    exec 200>"$LOCK_FILE"
-    if ! flock -n -w "$LOCK_TIMEOUT" 200; then
+    exec 9>$LOCK_FILE
+    if ! flock -n -w "$LOCK_TIMEOUT" 9; then
         log "ERROR: Could not acquire lock after ${LOCK_TIMEOUT}s. Aborting."
-        exit 1;
+        cleanup 2;
     fi
-    echo $$ >&200
+    echo $$ >&9
 
     if ! grep -q "<disablepreempt>" /conf/config.xml; then
         log "PRIMARY node detected. No action needed."
-        return 0
+        cleanup 0
     fi
 
     log "BACKUP node detected. Enforcing passive state."
@@ -110,7 +108,7 @@ ha_passive_enforcer_start()
     log "Setting default routes via dedicated script..."
     if [ $IS_DRY_RUN -eq 1 ]; then
         log "DRY RUN: Would execute /usr/local/etc/rc.syshook.d/98-ha_set_routes.php"
-    elif /usr/local/share/ha_failover/bin/98-ha_set_routes.php; then
+    elif $SCRIPT_DIR/98-ha_set_routes.php; then
         log "Default routes configured successfully."
     else
         log "ERROR: Failed to configure default routes. Check system logs for details."
